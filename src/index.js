@@ -10,7 +10,7 @@ const MONGO_URI = `mongodb+srv://${USER}:${PASSWORD}@${config.dbHost}/${DB_NAME}
 
 
 mongoose.Promise = global.Promise;
-mongoose.createConnection(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true } )
+mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true } )
         .then(() => {
             console.log('Conexion a la base de datos establecida...');
             app.listen(config.port, () => {

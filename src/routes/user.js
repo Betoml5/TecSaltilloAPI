@@ -11,10 +11,12 @@ const User = require('../models/User');
 
 // Empezamos las rutas del usuario;
 
+
 router.get('/test', UserController.test);
-router.post('/register', UserController.createUser);
-router.post('/login', UserController.login);
 router.get('/users', UserController.getUsers);
 router.get('/user/:id?', UserController.getUser);
+
+router.post('/register', UserController.createUser);
+router.post('/login', UserController.login);
 
 module.exports = router;

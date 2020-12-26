@@ -29,60 +29,102 @@ const controller = {
   getUser: async (req, res) => {
     try {
       const userID = req.params.id;
-
-      userID === null && res.status(404).send({ message: "User not found" });
+      if (userID === null)
+        return res.status(404).send({ message: "User not found" });
 
       User.findById(userID, (err, user) => {
-        if (err) return res.status(500).send({ message: "Error has ocurred..." });
+        if (err)
+          return res.status(500).send({ message: "Error has ocurred..." });
 
-        if (!user) return  res.status(404).send({ message: "The user doesn't exist" });
+        if (!user)
+          return res.status(404).send({ message: "The user doesn't exist" });
 
         return res.status(200).send({ user });
       });
     } catch (error) {
-      return res.status(500).send({ message: "Error has ocurred"});
+      return res.status(500).send({ message: "Error has ocurred" });
     }
   },
   createUser: async (req, res) => {
-   try {
-    const user = new User();
-    const { name, password, email } = req.body;
-    user.name = name;
-    user.password = password;
-    user.email = email;
+    try {
+      const user = new User();
+      const { name, password, email } = req.body;
+      user.name = name;
+      user.password = password;
+      user.email = email;
 
-    user.save( (err, userSaved) => {
-      if(err) {
-        console.log(err);
-        return res.status(500).send({ message: "Error trying to create the user" });
-      }
-      
+      user.save((err, userSaved) => {
+        if (err) {
+          console.log(err);
+          return res
+            .status(500)
+            .send({ message: "Error trying to create the user" });
+        }
 
-      if (!userSaved) return res.status(500).send({ message: "Error has ocurred" });
+        if (!userSaved)
+          return res.status(500).send({ message: "Error has ocurred" });
 
-      return res.status(200).send( { user: userSaved} );
-    });
-    
-   } catch (error) {
-     return res.status(500).send( { message: error } )
-   }
+        return res.status(201).send({ user: userSaved });
+      });
+    } catch (error) {
+      return res.status(500).send({ message: error });
+    }
   },
   login: async (req, res) => {
+    const { email, password } = req.body;      
     try {
-      const user = await User.findOne({ email: req.body.email }).exec();
+      const user = await User.findOne({ email }).exec();
+      if (!user)
+        return res
+          .status(400)
+          .send({ message: "The email does not exist", state: false });
 
-      if (!user) return res.status(400).send({ message: "The email does not exist", state: false});
+      user.comparePassword(password, (error, match) => {
 
-      user.comparePassword(req.body.password, (error, match) => {
-        if (!match) return res.status(400).send({ message: "The password is invalid", state: false });
+        if(error) return res.status(500).send({ message: "Error trying to compare password", error: error});
+
+        if (!match)
+          return res
+            .status(400)
+            .send({ message: "The password is invalid", state: false });
       });
 
-      return res.status(200).send({ message: "The email and password combination is correct!", state: true, user});
-
+      res.send({
+        message: "The email and password combination is correct!",
+        state: true,
+        user,
+      });
     } catch (error) {
-      return res.status(500).send({ message: "Error has ocurred", code: error })
+      res.status(500).send({ message: "Error has ocurred" });
     }
-  }
+  },
+
+  updateUser: async (req, res) => {
+    try {
+      const userID = req.params.id;
+      const update = req.body;
+
+      User.findByIdAndUpdate(
+        userID,
+        update,
+        { new: true },
+        (err, userUpdated) => {
+          if (err)
+            return res
+              .status(500)
+              .send({ message: "Error trying to update the user" });
+
+          if (!userUpdated)
+            return res.status(404).send({ message: "User not found" });
+
+          return res.status(200).send({ user: userUpdated });
+        }
+      );
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({ error });
+    }
+  },
 };
 
 module.exports = controller;

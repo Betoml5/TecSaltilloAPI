@@ -6,7 +6,7 @@ const app = express();
 const user_routes = require("./routes/user");
 
 // Middlewares
-
+    
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 

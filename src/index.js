@@ -15,7 +15,7 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true } 
             console.log('Conexion a la base de datos establecida...');
             app.listen(config.port, () => {
                 console.log(`Servidor corriendo correctamente en: localhost:${config.port}`);
-                console.log(`Estas en modo ${config.dev}`);
+                console.log(`Estas en modo  ${config.dev ? "Dev" : "Produccion"}`);
               });
         })
         .catch( err => console.error(err))

@@ -70,32 +70,33 @@ const controller = {
       return res.status(500).send({ message: error });
     }
   },
-  login: async (req, res) => {
-    const { email, password } = req.body;      
+  login: async function (req, res) {
+    const { email, password } = req.body;
     try {
-      const user = await User.findOne({ email }).exec();
-      if (!user)
+      const user = await User.findOne({ email: email }).exec();
+      if (!user) {
         return res
           .status(400)
           .send({ message: "The email does not exist", state: false });
+      }
 
       user.comparePassword(password, (error, match) => {
-
-        if(error) return res.status(500).send({ message: "Error trying to compare password", error: error});
-
-        if (!match)
-          return res
-            .status(400)
-            .send({ message: "The password is invalid", state: false });
+        if (!match) {
+          return res.status(400).send({
+            message: "The password is invalid",
+            state: false,
+          });
+        } else{
+          return res.send({
+            message: "The email and password combination is correct!",
+            state: true,
+            user,
+          });
+        }
       });
 
-      res.send({
-        message: "The email and password combination is correct!",
-        state: true,
-        user,
-      });
     } catch (error) {
-      res.status(500).send({ message: "Error has ocurred" });
+      return res.status(500).send({ message: "Error has ocurred" });
     }
   },
 
